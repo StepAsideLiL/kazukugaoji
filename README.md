@@ -1,6 +1,7 @@
 # Kazukugaoji
 
 Form UI (multi-step)
+
 - Select: Yes, I will attend / No, I cannot attend / No, But I will sponsor
 - Name, Email, Phone
 - Guest info with relationship. Ex: Oli - wife, Ali - friend
@@ -9,4 +10,3 @@ Form UI (multi-step)
 - BBQ Contribution
 - Sponsorship
 - play spades game and enter your team name. (12 team max)
-
