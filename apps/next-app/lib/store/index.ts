@@ -4,7 +4,7 @@ export type Relation =
   | "Husband"
   | "Wife"
   | "Son"
-  | "dughter"
+  | "Dughter"
   | "Father"
   | "Mother"
   | "Brother"
