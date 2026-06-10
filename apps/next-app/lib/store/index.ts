@@ -51,7 +51,7 @@ export const initialFormState: FormState = {
   email: "",
   phone: "",
   guests: [],
-  tshirt: [{ quantity: 0, size: "M" }],
+  tshirt: [],
   spadesTeam: false,
 };
 
