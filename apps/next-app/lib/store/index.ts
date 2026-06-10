@@ -46,7 +46,7 @@ export type Actions = {
 };
 
 export const initialFormState: FormState = {
-  attand: false,
+  attand: true,
   name: "",
   email: "",
   phone: "",

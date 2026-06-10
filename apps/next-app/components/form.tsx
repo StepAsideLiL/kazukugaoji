@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { useFormStore } from "@/lib/store";
 import { useState, useId } from "react";
 
 export default function Form() {
@@ -86,7 +88,17 @@ export default function Form() {
       </CardHeader>
 
       <CardContent className="-mb-(--card-spacing) h-full max-h-96 min-h-96 flex-1 sm:flex-0">
-        {step && <step.FormComponent />}
+        {step && (
+          <div className="space-y-5">
+            <div>
+              <h1 className="text-2xl font-bold">{step.title}</h1>
+
+              <p>{step.description}</p>
+            </div>
+
+            <step.FormComponent />
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="justify-end gap-2">
@@ -114,9 +126,17 @@ export default function Form() {
 
 function Attend() {
   const id = useId();
+  const attand = useFormStore((state) => state.attand);
+  const setAttand = useFormStore((state) => state.setAttand);
 
   return (
-    <RadioGroup className="gap-2" defaultValue="1">
+    <RadioGroup
+      className="gap-2"
+      value={attand ? "1" : "2"}
+      onValueChange={(value: string) => {
+        setAttand(value === "1" ? true : false);
+      }}
+    >
       {/* Radio card #1 */}
       <Label
         htmlFor={`${id}-1`}
@@ -129,7 +149,7 @@ function Attend() {
           value="1"
         />
         <div className="grid grow gap-2">
-          <h2 className="text-xl"> Yes, I will attend 😀</h2>
+          <h2 className="text-lg"> Yes, I will attend 😀</h2>
           <p
             className="text-xs text-muted-foreground"
             id={`${id}-1-description`}
@@ -151,7 +171,7 @@ function Attend() {
           value="2"
         />
         <div className="grid grow gap-2">
-          <h2 className="text-xl">No, I cannot attend 😟</h2>
+          <h2 className="text-lg">No, I cannot attend 😟</h2>
           <p
             className="text-xs text-muted-foreground"
             id={`${id}-2-description`}
@@ -165,7 +185,55 @@ function Attend() {
 }
 
 function Contact() {
-  return <div>Contact</div>;
+  const baseId = useId();
+
+  const name = useFormStore((state) => state.name);
+  const email = useFormStore((state) => state.email);
+  const phone = useFormStore((state) => state.phone);
+
+  const setName = useFormStore((state) => state.setName);
+  const setEmail = useFormStore((state) => state.setEmail);
+  const setPhone = useFormStore((state) => state.setPhone);
+
+  return (
+    <div className="w-full max-w-md space-y-4">
+      {/* Name Field */}
+      <div className="grid gap-1.5">
+        <Label htmlFor={`${baseId}-name`}>Full Name</Label>
+        <Input
+          id={`${baseId}-name`}
+          type="text"
+          placeholder="John Doe"
+          value={name || ""} // Fallback to empty string to prevent React un-controlled warnings
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      {/* Email Field */}
+      <div className="grid gap-1.5">
+        <Label htmlFor={`${baseId}-email`}>Email Address</Label>
+        <Input
+          id={`${baseId}-email`}
+          type="email"
+          placeholder="john@example.com"
+          value={email || ""}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      {/* Phone Field */}
+      <div className="grid gap-1.5">
+        <Label htmlFor={`${baseId}-phone`}>Phone Number</Label>
+        <Input
+          id={`${baseId}-phone`}
+          type="tel"
+          placeholder="(555) 000-0000"
+          value={phone || ""}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+      </div>
+    </div>
+  );
 }
 
 function Guests() {
