@@ -205,7 +205,7 @@ export default function Form() {
   };
 
   return (
-    <div className="fixed inset-0 flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground md:flex-row">
+    <div className="fixed inset-0 flex h-screen w-screen flex-col overflow-auto bg-background text-foreground md:flex-row">
       {/* STEPPER PROGRESS SIDEBAR - CLEAN LIGHT THEME */}
       <aside className="flex w-full shrink-0 gap-4 overflow-x-auto border-b border-border bg-card p-6 md:w-80 md:flex-col md:overflow-x-visible md:border-r md:border-b-0">
         <div className="hidden border-b border-border pb-4 md:block">
