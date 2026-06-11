@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Guest, Relation, TShirt, useFormStore } from "@/lib/store";
 import { useState, useId } from "react";
-import { Trash2, Plus, Minus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Trash2,
+  Plus,
+  Minus,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  Check,
+  Trophy,
+  Users,
+} from "lucide-react";
 
 const RELATIONS: Relation[] = [
   "Husband",
@@ -40,6 +52,57 @@ const RELATIONS: Relation[] = [
 ];
 
 const SIZES: TShirt["size"][] = ["S", "M", "L", "XL", "XXL"];
+
+const SPONSORSHIP_TIERS = [
+  {
+    id: "silver",
+    value: "500",
+    name: "Silver Supporter",
+    price: "$500",
+    icon: Shield,
+    color: "text-slate-400 border-slate-200 bg-slate-50/50",
+    description:
+      "Perfect for local businesses or individual patrons wanting to support the cause.",
+    features: [
+      "Logo placement on website",
+      "Mention in opening remarks",
+      "2 General Admission tickets",
+    ],
+  },
+  {
+    id: "gold",
+    value: "1500",
+    name: "Gold Partner",
+    price: "$1,500",
+    icon: ShieldCheck,
+    color: "text-amber-500 border-amber-200 bg-amber-50/50",
+    description:
+      "Our most popular tier. Significant brand visibility before and during the main event.",
+    features: [
+      "Prominent logo on main stage banner",
+      "Dedicated social media shoutout",
+      "4 VIP Access tickets",
+      "Shared logo on event t-shirts",
+    ],
+    popular: true,
+  },
+  {
+    id: "platinum",
+    value: "3000",
+    name: "Platinum Elite",
+    price: "$3,000",
+    icon: ShieldAlert,
+    color: "text-violet-500 border-violet-200 bg-violet-50/50",
+    description:
+      "Ultimate exposure. Maximize your presence as a headline presenter across all assets.",
+    features: [
+      "Exclusive 'Presented By' naming rights",
+      "Dedicated promotional booth space",
+      "10 VIP Access tickets",
+      "Standalone logo on event t-shirts",
+    ],
+  },
+];
 
 export default function Form() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -67,34 +130,27 @@ export default function Form() {
     },
     {
       step: 4,
-      title: "Add your guest.",
-      description: "",
-      FormComponent: Guests,
-      required: false,
-    },
-    {
-      step: 5,
       title: "Buy T-shirt!",
       description: "",
       FormComponent: TShirts,
       required: false,
     },
     {
-      step: 6,
+      step: 5,
       title: "Buy VIP access and BBQ Contribution.",
       description: "",
       FormComponent: VIPandBBQ,
       required: false,
     },
     {
-      step: 7,
+      step: 6,
       title: "Sponsor our event!",
       description: "",
       FormComponent: Sponsorship,
       required: false,
     },
     {
-      step: 8,
+      step: 7,
       title: "Want to play spades.",
       description: "",
       FormComponent: SpadeGame,
@@ -105,7 +161,7 @@ export default function Form() {
   const step = formSteps.find((step) => currentStep === step.step);
 
   return (
-    <Card className="mx-auto h-screen w-full max-w-xl sm:h-auto">
+    <Card className="mx-auto h-screen w-full max-w-5xl">
       <CardHeader>
         <CardTitle>Terms of Service</CardTitle>
         <CardDescription>
@@ -113,7 +169,7 @@ export default function Form() {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="-mb-(--card-spacing) h-full max-h-96 min-h-96 flex-1 sm:flex-0">
+      <CardContent className="-mb-(--card-spacing) h-full flex-1">
         {step && (
           <div className="h-full space-y-5 overflow-auto">
             <div>
@@ -531,13 +587,245 @@ function TShirts() {
 }
 
 function VIPandBBQ() {
-  return <div>VIP & BBQ</div>;
+  const vipId = useId();
+  const bbqId = useId();
+
+  // Extract states and setters atomically from your Zustand store
+  // const spadesTeam = useFormStore((state) => state.spadesTeam);
+  // const setSpadesTeam = useFormStore((state) => state.setSpadesTeam);
+
+  return (
+    <div className="w-full max-w-md space-y-6">
+      {/* SECTION 1: VIP ACCESS TICKETING */}
+      <div className="space-y-2">
+        <div>
+          <h3 className="text-sm font-medium text-foreground">
+            Ticket Upgrades
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Elevate your overall event experience.
+          </p>
+        </div>
+
+        <Label
+          htmlFor={vipId}
+          className="relative flex w-full cursor-pointer items-start gap-3 rounded-md border border-input p-4 shadow-xs transition-colors outline-none has-data-[state=checked]:border-primary has-data-[state=checked]:bg-accent/30"
+        >
+          <Checkbox
+            id={vipId}
+            aria-describedby={`${vipId}-description`}
+            className="order-1 mt-1 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
+            // checked={spadesTeam}
+            // onCheckedChange={(checked) => setSpadesTeam(!!checked)}
+          />
+
+          <div className="grid grow gap-1">
+            <span className="text-base leading-none font-semibold">
+              Buy VIP Access
+            </span>
+            <p
+              className="text-xs text-muted-foreground"
+              id={`${vipId}-description`}
+            >
+              Get premium front-row seating, fast-track entry lines, and
+              exclusive event merchandise.
+            </p>
+          </div>
+        </Label>
+      </div>
+
+      {/* SECTION 2: BACKYARD BBQ DONATION */}
+      <div className="space-y-2">
+        <div>
+          <h3 className="text-sm font-medium text-foreground">Event Support</h3>
+          <p className="text-xs text-muted-foreground">
+            Help fund the cookout provisions.
+          </p>
+        </div>
+
+        <div className="space-y-3 rounded-md border border-input bg-card p-4 shadow-xs">
+          <div className="grid gap-1">
+            <Label htmlFor={bbqId} className="text-base font-semibold">
+              BBQ Fund Donation
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              All contributions go straight towards funding the cuts of meat,
+              charcoal, and setups.
+            </p>
+          </div>
+
+          <Select defaultValue="0">
+            <SelectTrigger id={bbqId} className="h-10 w-full bg-background">
+              <SelectValue placeholder="Choose donation amount" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">No donation, thank you</SelectItem>
+              <SelectItem value="5">
+                $5.00 — Sauce & Charcoal Supporter
+              </SelectItem>
+              <SelectItem value="10">$10.00 — Grillmaster Associate</SelectItem>
+              <SelectItem value="25">$25.00 — Smoker Elite Club</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function Sponsorship() {
-  return <div>Sponsorship</div>;
+  const baseId = useId();
+
+  return (
+    <div className="w-full max-w-4xl space-y-4">
+      <div>
+        <h3 className="text-xl font-bold tracking-tight text-foreground">
+          Become an Event Sponsor
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Select a contribution level that matches your organization&apos;s
+          goals.
+        </p>
+      </div>
+
+      <RadioGroup
+        className="grid gap-4 sm:grid-cols-3"
+        defaultValue="500"
+        onValueChange={(value) =>
+          console.log("Selected sponsorship tier:", value)
+        }
+      >
+        {SPONSORSHIP_TIERS.map((tier) => {
+          const Icon = tier.icon;
+          const htmlId = `${baseId}-${tier.id}`;
+
+          return (
+            <Label
+              key={tier.id}
+              htmlFor={htmlId}
+              className="relative flex h-full cursor-pointer flex-col justify-between rounded-xl border border-input bg-card p-5 shadow-xs transition-all outline-none hover:bg-accent/20 has-data-[state=checked]:border-primary has-data-[state=checked]:ring-2 has-data-[state=checked]:ring-primary/10"
+            >
+              {/* Radio Input (Hidden structurally but available via Label fallback overlay) */}
+              <RadioGroupItem
+                id={htmlId}
+                value={tier.value}
+                className="absolute top-4 right-4 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
+              />
+
+              {/* Card Body Header Content */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`rounded-lg border p-2 ${tier.color.split(" ")[1]} ${tier.color.split(" ")[2]}`}
+                  >
+                    <Icon className={`h-5 w-5 ${tier.color.split(" ")[0]}`} />
+                  </div>
+                  {tier.popular && (
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-amber-600 uppercase"
+                    >
+                      Most Popular
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="text-base leading-tight font-bold">
+                    {tier.name}
+                  </h4>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-extrabold tracking-tight">
+                      {tier.price}
+                    </span>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      / flat rate
+                    </span>
+                  </div>
+                  <p className="pt-1 text-xs leading-relaxed font-normal text-muted-foreground">
+                    {tier.description}
+                  </p>
+                </div>
+
+                {/* Features Divider & Checkmarks */}
+                <ul className="space-y-2 border-t border-dashed pt-4 text-xs font-normal text-muted-foreground">
+                  {tier.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Label>
+          );
+        })}
+      </RadioGroup>
+    </div>
+  );
 }
 
 function SpadeGame() {
-  return <div>Spade Game</div>;
+  const id = useId();
+
+  // 1. Extract state and setter atomically from your Zustand store
+  const spadesTeam = useFormStore((state) => state.spadesTeam);
+  const setSpadesTeam = useFormStore((state) => state.setSpadesTeam);
+
+  return (
+    <div className="w-full max-w-md space-y-3">
+      <div>
+        <h3 className="text-lg font-medium text-foreground">
+          Tournament Sign-up
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Let us know if you want to enter competitive brackets.
+        </p>
+      </div>
+
+      {/* Interactive Card Group */}
+      <Label
+        htmlFor={id}
+        className="relative flex w-full cursor-pointer items-start gap-4 rounded-xl border border-input p-4 shadow-xs transition-colors outline-none hover:bg-accent/10 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-accent/30"
+      >
+        {/* Shadcn Checkbox */}
+        <Checkbox
+          id={id}
+          aria-describedby={`${id}-description`}
+          className="order-1 mt-1 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
+          checked={spadesTeam}
+          onCheckedChange={(checked) => setSpadesTeam(!!checked)}
+        />
+
+        {/* Card Graphics & Copy Content */}
+        <div className="flex-1 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="rounded-md border bg-background p-1.5 text-primary">
+              <Trophy className="h-4 w-4" />
+            </div>
+            <span className="text-base leading-none font-semibold">
+              Register Spades Team
+            </span>
+          </div>
+
+          <p
+            className="text-xs leading-relaxed text-muted-foreground"
+            id={`${id}-description`}
+          >
+            Yes, sign me up for the official Spades Tournament brackets! Teams
+            consist of 2 players. If you are entering solo, we will match you
+            with a partner on arrival.
+          </p>
+
+          {/* Quick Context Highlights */}
+          {spadesTeam && (
+            <div className="flex animate-in items-center gap-1.5 pt-1.5 text-[11px] font-medium text-primary duration-200 fade-in">
+              <Users className="h-3.5 w-3.5" />
+              <span>Bracket slot reserved under your registration</span>
+            </div>
+          )}
+        </div>
+      </Label>
+    </div>
+  );
 }
