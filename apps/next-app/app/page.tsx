@@ -7,8 +7,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className="flex h-screen items-center justify-center">
+    <div className="min-h-screen">
       <Form />
-    </main>
+    </div>
   );
 }

@@ -1,14 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const RELATIONS: Relation[] = [
   "Husband",
@@ -106,103 +107,209 @@ const SPONSORSHIP_TIERS = [
 
 export default function Form() {
   const [currentStep, setCurrentStep] = useState(1);
+
+  // 1. Listen to global state to dynamically modify step behavior
+  const attand = useFormStore((state) => state.attand);
+
   const formSteps = [
     {
       step: 1,
       title: "Will You Attend?",
-      description: "",
+      description: "Let us know if you can make it to our annual cookout.",
       FormComponent: Attend,
       required: true,
     },
     {
       step: 2,
       title: "Please! Fill Out Your Contact.",
-      description: "",
+      description:
+        "Provide your basic contact information so we can stay in touch.",
       FormComponent: Contact,
       required: true,
     },
     {
       step: 3,
       title: "Add your guest.",
-      description: "",
+      description: "Bringing companions? Register them ahead of time.",
       FormComponent: Guests,
       required: true,
     },
     {
       step: 4,
       title: "Buy T-shirt!",
-      description: "",
+      description:
+        "Support our theme and match with everyone at the gathering.",
       FormComponent: TShirts,
       required: false,
     },
     {
       step: 5,
       title: "Buy VIP access and BBQ Contribution.",
-      description: "",
+      description:
+        "Upgrade your pass features or help sponsor the meat and grills.",
       FormComponent: VIPandBBQ,
       required: false,
     },
     {
       step: 6,
       title: "Sponsor our event!",
-      description: "",
+      description:
+        "Promote your brand or back our organization as a lead supporter.",
       FormComponent: Sponsorship,
       required: false,
     },
     {
       step: 7,
       title: "Want to play spades.",
-      description: "",
+      description:
+        "Reserve your spot inside the highly competitive tournament brackets.",
       FormComponent: SpadeGame,
       required: false,
     },
   ];
 
-  const step = formSteps.find((step) => currentStep === step.step);
+  const currentStepData =
+    formSteps.find((s) => s.step === currentStep) || formSteps[0];
+  const isLastStep = currentStep === formSteps.length;
+
+  // 2. Condition-driven button label evaluations
+  const getNextButtonText = () => {
+    // If user says No to attending, change step 1 text to "Finish"
+    if (currentStep === 1 && !attand) {
+      return "Finish Registration";
+    }
+    if (isLastStep) {
+      return "Submit";
+    }
+    // Optional steps get standard "Skip" text handles
+    return currentStepData.required ? "Next" : "Skip step";
+  };
+
+  const handleNext = () => {
+    // If on Step 1 and user selects 'No' (false), submit early right away!
+    if (currentStep === 1 && !attand) {
+      alert("Form submitted! Thank you for letting us know.");
+      return;
+    }
+
+    if (isLastStep) {
+      alert("Form submitted completely!");
+      return;
+    }
+
+    setCurrentStep((prev) => Math.min(prev + 1, formSteps.length));
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
 
   return (
-    <Card className="mx-auto h-screen w-full max-w-5xl">
-      <CardHeader>
-        <CardTitle>Terms of Service</CardTitle>
-        <CardDescription>
-          Review the terms before accepting the agreement.
-        </CardDescription>
-      </CardHeader>
+    <div className="fixed inset-0 flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground md:flex-row">
+      {/* STEPPER PROGRESS SIDEBAR - CLEAN LIGHT THEME */}
+      <aside className="flex w-full shrink-0 gap-4 overflow-x-auto border-b border-border bg-card p-6 md:w-80 md:flex-col md:overflow-x-visible md:border-r md:border-b-0">
+        <div className="hidden border-b border-border pb-4 md:block">
+          <h2 className="text-xl font-bold tracking-tight">Event RSVP</h2>
+          <p className="text-xs text-muted-foreground">
+            Complete the registration track
+          </p>
+        </div>
 
-      <CardContent className="-mb-(--card-spacing) h-full flex-1">
-        {step && (
-          <div className="h-full space-y-5 overflow-auto">
-            <div>
-              <h1 className="text-2xl font-bold">{step.title}</h1>
+        <nav className="flex w-full min-w-max gap-6 md:min-w-0 md:flex-col md:gap-5 md:pt-4">
+          {formSteps.map((s) => {
+            const isActive = s.step === currentStep;
+            const isCompleted = s.step < currentStep;
 
-              <p>{step.description}</p>
-            </div>
+            return (
+              <div key={s.step} className="flex items-center gap-3 text-left">
+                <div
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all",
+                    isActive &&
+                      "scale-105 border-primary bg-primary text-primary-foreground shadow-xs",
+                    isCompleted &&
+                      "border-emerald-500 bg-emerald-500 text-white",
+                    !isActive &&
+                      !isCompleted &&
+                      "border-input bg-background text-muted-foreground"
+                  )}
+                >
+                  {isCompleted ? (
+                    <Check className="h-4 w-4 stroke-3" />
+                  ) : (
+                    s.step
+                  )}
+                </div>
+                <div className="hidden leading-tight md:block">
+                  <p
+                    className={cn(
+                      "text-sm font-semibold transition-colors",
+                      isActive ? "text-foreground" : "text-muted-foreground/70"
+                    )}
+                  >
+                    {s.title}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+      </aside>
 
-            <step.FormComponent />
+      {/* COMPONENT INTERACTION AREA */}
+      <main className="flex h-full min-w-0 flex-1 flex-col bg-background">
+        {/* Step Info Banner Header */}
+        <header className="shrink-0 space-y-1.5 border-b p-6 md:px-10 md:pt-8 md:pb-4">
+          <span className="text-xs font-bold tracking-wider text-muted-foreground/80 uppercase">
+            Step {currentStep} of {formSteps.length}
+          </span>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            {currentStepData.title}
+          </h1>
+          {currentStepData.description && (
+            <p className="text-sm text-muted-foreground">
+              {currentStepData.description}
+            </p>
+          )}
+        </header>
+
+        {/* Core Inner Content Grid */}
+        <div className="flex-1 overflow-auto p-6 md:p-10">
+          <div className="mx-auto w-full max-w-3xl">
+            <currentStepData.FormComponent />
           </div>
-        )}
-      </CardContent>
+        </div>
 
-      <CardFooter className="justify-end gap-2">
-        <Button
-          variant="outline"
-          onClick={() => {
-            if (currentStep > 1)
-              setCurrentStep((currentStep) => currentStep - 1);
-          }}
-        >
-          Back
-        </Button>
-        <Button
-          onClick={() => {
-            if (currentStep < formSteps.length)
-              setCurrentStep((currentStep) => currentStep + 1);
-          }}
-        >
-          Next
-        </Button>
-      </CardFooter>
-    </Card>
+        {/* Global Action Fixed Control Block */}
+        <footer className="flex shrink-0 items-center justify-between border-t bg-card p-6 md:px-10">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            disabled={currentStep === 1}
+            className="px-5 font-medium disabled:opacity-20"
+          >
+            Back
+          </Button>
+
+          <Button
+            onClick={handleNext}
+            variant={
+              !currentStepData.required && currentStep !== 1
+                ? "outline"
+                : "default"
+            }
+            className={cn(
+              "h-10 min-w-35 font-semibold shadow-xs transition-all",
+              !currentStepData.required &&
+                currentStep !== 1 &&
+                "border-dashed border-input hover:bg-accent"
+            )}
+          >
+            {getNextButtonText()}
+          </Button>
+        </footer>
+      </main>
+    </div>
   );
 }
 
@@ -213,7 +320,7 @@ function Attend() {
 
   return (
     <RadioGroup
-      className="gap-2"
+      className="w-full gap-2"
       value={attand ? "1" : "2"}
       onValueChange={(value: string) => {
         setAttand(value === "1" ? true : false);
@@ -278,7 +385,7 @@ function Contact() {
   const setPhone = useFormStore((state) => state.setPhone);
 
   return (
-    <div className="w-full max-w-md space-y-4">
+    <div className="w-full space-y-4">
       {/* Name Field */}
       <div className="grid gap-1.5">
         <Label htmlFor={`${baseId}-name`}>Full Name</Label>
@@ -347,7 +454,7 @@ function Guests() {
   };
 
   return (
-    <div className="w-full max-w-2xl space-y-4">
+    <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Accompanying Guests</h3>
@@ -476,7 +583,7 @@ function TShirts() {
   const totalShirts = tshirtList.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="w-full max-w-2xl space-y-4">
+    <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Event T-Shirts</h3>
@@ -595,7 +702,7 @@ function VIPandBBQ() {
   // const setSpadesTeam = useFormStore((state) => state.setSpadesTeam);
 
   return (
-    <div className="w-full max-w-md space-y-6">
+    <div className="w-full space-y-6">
       {/* SECTION 1: VIP ACCESS TICKETING */}
       <div className="space-y-2">
         <div>
@@ -677,7 +784,7 @@ function Sponsorship() {
   const baseId = useId();
 
   return (
-    <div className="w-full max-w-4xl space-y-4">
+    <div className="w-full space-y-4">
       <div>
         <h3 className="text-xl font-bold tracking-tight text-foreground">
           Become an Event Sponsor
@@ -773,7 +880,7 @@ function SpadeGame() {
   const setSpadesTeam = useFormStore((state) => state.setSpadesTeam);
 
   return (
-    <div className="w-full max-w-md space-y-3">
+    <div className="w-full space-y-3">
       <div>
         <h3 className="text-lg font-medium text-foreground">
           Tournament Sign-up
