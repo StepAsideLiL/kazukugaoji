@@ -3,6 +3,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "docker compose start"
+    "dev": "docker compose -f docker-compose.yml up",
+    "docker:clean": "docker compose -f docker-compose.yml down -v",
+    "docker:down": "docker compose -f docker-compose.yml down",
+    "docker:start": "docker compose -f docker-compose.yml start",
+    "docker:stop": "docker compose -f docker-compose.yml stop",
+    "docker:up": "docker compose -f docker-compose.yml up"
   }
 }
