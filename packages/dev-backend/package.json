@@ -1,0 +1,8 @@
+{
+  "name": "dev-backend",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose start"
+  }
+}
