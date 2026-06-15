@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,13 +11,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, Form, useForm } from "@formisch/react";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  // FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Field as FormischField, Form, useForm } from "@formisch/react";
 import * as v from "valibot";
 
 const eventRegistrationSchema = v.object({
   idSlug: v.pipe(v.string(), v.trim(), v.minLength(1, "ID/Slug is required")),
   title: v.pipe(v.string(), v.trim(), v.minLength(1, "Title is required")),
-  subtitle: v.string(),
+  subtitle: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Subtitle is required")
+  ),
   description: v.pipe(
     v.string(),
     v.trim(),
@@ -105,10 +115,13 @@ export default function EventDashboardForm() {
         className="grid gap-6 rounded-2xl border bg-card p-6 shadow-sm"
       >
         <div className="grid gap-6 md:grid-cols-2">
-          <Field of={form} path={["idSlug"]}>
+          <FormischField of={form} path={["idSlug"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="idSlug">ID / Slug</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="idSlug">ID / Slug</FieldLabel>
                 <Input
                   id="idSlug"
                   placeholder="summer-festival-2026"
@@ -116,17 +129,25 @@ export default function EventDashboardForm() {
                   value={field.input ?? ""}
                   onChange={(event) => field.onChange(event.target.value)}
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </div>
+                <FieldDescription>
+                  Provide a form id/slug. It will be the form url path.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
+              </Field>
             )}
-          </Field>
+          </FormischField>
 
-          <Field of={form} path={["title"]}>
+          <FormischField of={form} path={["title"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="title">Title</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="title">Title</FieldLabel>
                 <Input
                   id="title"
                   placeholder="Summer Festival"
@@ -134,17 +155,25 @@ export default function EventDashboardForm() {
                   value={field.input ?? ""}
                   onChange={(event) => field.onChange(event.target.value)}
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </div>
+                <FieldDescription>
+                  Provide form name. It will appear in the form.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
+              </Field>
             )}
-          </Field>
+          </FormischField>
 
-          <Field of={form} path={["subtitle"]}>
+          <FormischField of={form} path={["subtitle"]}>
             {(field) => (
-              <div className="grid gap-2 md:col-span-2">
-                <Label htmlFor="subtitle">Subtitle</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2 md:col-span-2"
+              >
+                <FieldLabel htmlFor="subtitle">Subtitle</FieldLabel>
                 <Input
                   id="subtitle"
                   placeholder="A community celebration with music and food"
@@ -152,14 +181,25 @@ export default function EventDashboardForm() {
                   value={field.input ?? ""}
                   onChange={(event) => field.onChange(event.target.value)}
                 />
-              </div>
+                <FieldDescription>
+                  Provide form subtitle. It will appear in the form.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
+              </Field>
             )}
-          </Field>
+          </FormischField>
 
-          <Field of={form} path={["description"]}>
+          <FormischField of={form} path={["description"]}>
             {(field) => (
-              <div className="grid gap-2 md:col-span-2">
-                <Label htmlFor="description">Description</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2 md:col-span-2"
+              >
+                <FieldLabel htmlFor="description">Description</FieldLabel>
                 <Textarea
                   id="description"
                   rows={4}
@@ -168,24 +208,29 @@ export default function EventDashboardForm() {
                   value={field.input ?? ""}
                   onChange={(event) => field.onChange(event.target.value)}
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </div>
+                <FieldDescription>
+                  Provide form description. It will appear in the form.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
+              </Field>
             )}
-          </Field>
+          </FormischField>
         </div>
 
-        <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-2">
-          <div className="grid gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">Required fields</h2>
-              <p className="text-sm text-muted-foreground">
-                Choose which attendee fields should be mandatory.
-              </p>
-            </div>
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <div>
+            <h2 className="text-lg font-semibold">Required fields</h2>
+            <p className="text-sm text-muted-foreground">
+              Choose which attendee fields should be mandatory.
+            </p>
+          </div>
 
-            <Field of={form} path={["requiredFields", "name"]}>
+          <div className="grid gap-3 md:grid-cols-3">
+            <FormischField of={form} path={["requiredFields", "name"]}>
               {(field) => (
                 <label className="flex items-start gap-3 rounded-lg border p-3">
                   <Checkbox
@@ -202,9 +247,9 @@ export default function EventDashboardForm() {
                   </span>
                 </label>
               )}
-            </Field>
+            </FormischField>
 
-            <Field of={form} path={["requiredFields", "email"]}>
+            <FormischField of={form} path={["requiredFields", "email"]}>
               {(field) => (
                 <label className="flex items-start gap-3 rounded-lg border p-3">
                   <Checkbox
@@ -221,9 +266,9 @@ export default function EventDashboardForm() {
                   </span>
                 </label>
               )}
-            </Field>
+            </FormischField>
 
-            <Field of={form} path={["requiredFields", "phone"]}>
+            <FormischField of={form} path={["requiredFields", "phone"]}>
               {(field) => (
                 <label className="flex items-start gap-3 rounded-lg border p-3">
                   <Checkbox
@@ -240,89 +285,100 @@ export default function EventDashboardForm() {
                   </span>
                 </label>
               )}
-            </Field>
-          </div>
-
-          <div className="grid gap-5">
-            <Field of={form} path={["maxGuestsAllowed"]}>
-              {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor="maxGuestsAllowed">Max guests allowed</Label>
-                  <Input
-                    id="maxGuestsAllowed"
-                    type="number"
-                    min={1}
-                    step={1}
-                    {...field.props}
-                    value={field.input ?? 1}
-                    onChange={(event) =>
-                      field.onChange(Number(event.target.value || 0))
-                    }
-                  />
-                  {field.errors?.[0] ? (
-                    <p className="text-xs text-destructive">
-                      {field.errors[0]}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            </Field>
-
-            <Field of={form} path={["tshirtPrice"]}>
-              {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor="tshirtPrice">T-shirt price</Label>
-                  <Input
-                    id="tshirtPrice"
-                    type="number"
-                    min={0}
-                    step={1}
-                    {...field.props}
-                    value={field.input ?? 0}
-                    onChange={(event) =>
-                      field.onChange(Number(event.target.value || 0))
-                    }
-                  />
-                  {field.errors?.[0] ? (
-                    <p className="text-xs text-destructive">
-                      {field.errors[0]}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            </Field>
-
-            <Field of={form} path={["vipAccessPrice"]}>
-              {(field) => (
-                <div className="grid gap-2">
-                  <Label htmlFor="vipAccessPrice">VIP access price</Label>
-                  <Input
-                    id="vipAccessPrice"
-                    type="number"
-                    min={0}
-                    step={1}
-                    {...field.props}
-                    value={field.input ?? 0}
-                    onChange={(event) =>
-                      field.onChange(Number(event.target.value || 0))
-                    }
-                  />
-                  {field.errors?.[0] ? (
-                    <p className="text-xs text-destructive">
-                      {field.errors[0]}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            </Field>
+            </FormischField>
           </div>
         </div>
 
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <FormischField of={form} path={["maxGuestsAllowed"]}>
+            {(field) => (
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="maxGuestsAllowed">
+                  Max guests allowed
+                </FieldLabel>
+                <Input
+                  id="maxGuestsAllowed"
+                  type="number"
+                  min={1}
+                  step={1}
+                  {...field.props}
+                  value={field.input ?? 1}
+                  onChange={(event) =>
+                    field.onChange(Number(event.target.value || 0))
+                  }
+                />
+                {field.errors?.[0] ? (
+                  <p className="text-xs text-destructive">{field.errors[0]}</p>
+                ) : null}
+              </Field>
+            )}
+          </FormischField>
+        </div>
+
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <FormischField of={form} path={["tshirtPrice"]}>
+            {(field) => (
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="tshirtPrice">T-shirt price</FieldLabel>
+                <Input
+                  id="tshirtPrice"
+                  type="number"
+                  min={0}
+                  step={1}
+                  {...field.props}
+                  value={field.input ?? 0}
+                  onChange={(event) =>
+                    field.onChange(Number(event.target.value || 0))
+                  }
+                />
+                {field.errors?.[0] ? (
+                  <p className="text-xs text-destructive">{field.errors[0]}</p>
+                ) : null}
+              </Field>
+            )}
+          </FormischField>
+        </div>
+
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <FormischField of={form} path={["vipAccessPrice"]}>
+            {(field) => (
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="vipAccessPrice">
+                  VIP access price
+                </FieldLabel>
+                <Input
+                  id="vipAccessPrice"
+                  type="number"
+                  min={0}
+                  step={1}
+                  {...field.props}
+                  value={field.input ?? 0}
+                  onChange={(event) =>
+                    field.onChange(Number(event.target.value || 0))
+                  }
+                />
+                {field.errors?.[0] ? (
+                  <p className="text-xs text-destructive">{field.errors[0]}</p>
+                ) : null}
+              </Field>
+            )}
+          </FormischField>
+        </div>
+
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-[1.1fr_0.9fr]">
-          <Field of={form} path={["bbqDonationType"]}>
+          <FormischField of={form} path={["bbqDonationType"]}>
             {(field) => (
               <div className="grid gap-2">
-                <Label>BBQ donation option</Label>
+                <FieldLabel>BBQ donation option</FieldLabel>
                 <Select
                   value={field.input ?? "one-time"}
                   onValueChange={(value) => field.onChange(value)}
@@ -341,12 +397,17 @@ export default function EventDashboardForm() {
                 ) : null}
               </div>
             )}
-          </Field>
+          </FormischField>
 
-          <Field of={form} path={["bbqDonationAmount"]}>
+          <FormischField of={form} path={["bbqDonationAmount"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="bbqDonationAmount">BBQ donation amount</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="bbqDonationAmount">
+                  BBQ donation amount
+                </FieldLabel>
                 <Input
                   id="bbqDonationAmount"
                   type="number"
@@ -361,16 +422,21 @@ export default function EventDashboardForm() {
                 {field.errors?.[0] ? (
                   <p className="text-xs text-destructive">{field.errors[0]}</p>
                 ) : null}
-              </div>
+              </Field>
             )}
-          </Field>
+          </FormischField>
         </div>
 
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-[0.9fr_1.1fr]">
-          <Field of={form} path={["sponsorTierPrice"]}>
+          <FormischField of={form} path={["sponsorTierPrice"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="sponsorTierPrice">Sponsor tier price</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="sponsorTierPrice">
+                  Sponsor tier price
+                </FieldLabel>
                 <Input
                   id="sponsorTierPrice"
                   type="number"
@@ -385,14 +451,19 @@ export default function EventDashboardForm() {
                 {field.errors?.[0] ? (
                   <p className="text-xs text-destructive">{field.errors[0]}</p>
                 ) : null}
-              </div>
+              </Field>
             )}
-          </Field>
+          </FormischField>
 
-          <Field of={form} path={["sponsorKeyPoints"]}>
+          <FormischField of={form} path={["sponsorKeyPoints"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="sponsorKeyPoints">Sponsor key points</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="sponsorKeyPoints">
+                  Sponsor key points
+                </FieldLabel>
                 <Textarea
                   id="sponsorKeyPoints"
                   rows={4}
@@ -404,16 +475,21 @@ export default function EventDashboardForm() {
                 {field.errors?.[0] ? (
                   <p className="text-xs text-destructive">{field.errors[0]}</p>
                 ) : null}
-              </div>
+              </Field>
             )}
-          </Field>
+          </FormischField>
         </div>
 
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-2">
-          <Field of={form} path={["maxSpadesTeams"]}>
+          <FormischField of={form} path={["maxSpadesTeams"]}>
             {(field) => (
-              <div className="grid gap-2">
-                <Label htmlFor="maxSpadesTeams">Max spades teams</Label>
+              <Field
+                data-invalid={field.errors !== null}
+                className="grid gap-2"
+              >
+                <FieldLabel htmlFor="maxSpadesTeams">
+                  Max spades teams
+                </FieldLabel>
                 <Input
                   id="maxSpadesTeams"
                   type="number"
@@ -428,9 +504,9 @@ export default function EventDashboardForm() {
                 {field.errors?.[0] ? (
                   <p className="text-xs text-destructive">{field.errors[0]}</p>
                 ) : null}
-              </div>
+              </Field>
             )}
-          </Field>
+          </FormischField>
 
           <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
             <p className="font-medium text-foreground">Ready to publish</p>
