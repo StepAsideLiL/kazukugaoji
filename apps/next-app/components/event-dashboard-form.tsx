@@ -18,8 +18,34 @@ import {
   // FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Field as FormischField, Form, useForm } from "@formisch/react";
+import {
+  Field as FormischField,
+  FieldArray,
+  Form,
+  insert,
+  remove,
+  useForm,
+} from "@formisch/react";
+import { Plus, Trash2 } from "lucide-react";
 import * as v from "valibot";
+
+const bbqDonationItemSchema = v.object({
+  name: v.pipe(v.string(), v.trim(), v.minLength(1, "Item name is required")),
+  price: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
+});
+
+const sponsorTierSchema = v.object({
+  title: v.pipe(v.string(), v.trim(), v.minLength(1, "Tier title is required")),
+  price: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
+  description: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Description is required")
+  ),
+  points: v.array(
+    v.pipe(v.string(), v.trim(), v.minLength(1, "Point is required"))
+  ),
+});
 
 const eventRegistrationSchema = v.object({
   idSlug: v.pipe(v.string(), v.trim(), v.minLength(1, "ID/Slug is required")),
@@ -54,15 +80,8 @@ const eventRegistrationSchema = v.object({
     v.number(),
     v.minValue(0, "Amount cannot be negative")
   ),
-  sponsorTierPrice: v.pipe(
-    v.number(),
-    v.minValue(0, "Price cannot be negative")
-  ),
-  sponsorKeyPoints: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1, "Key points are required")
-  ),
+  bbqDonationItems: v.array(bbqDonationItemSchema),
+  sponsorTiers: v.array(sponsorTierSchema),
   maxSpadesTeams: v.pipe(
     v.number(),
     v.minValue(1, "Must allow at least 1 team")
@@ -85,8 +104,36 @@ export default function EventDashboardForm() {
       vipAccessPrice: 75,
       bbqDonationType: "one-time",
       bbqDonationAmount: 50,
-      sponsorTierPrice: 500,
-      sponsorKeyPoints: "Logo placement, social shoutout, VIP perks",
+      bbqDonationItems: [
+        { name: "Chicken skewers", price: 12 },
+        { name: "Veggie skewers", price: 10 },
+      ],
+      sponsorTiers: [
+        {
+          title: "Gold",
+          price: 500,
+          description: "Premium visibility and lounge access.",
+          points: [
+            "Logo placement on all event materials",
+            "Social media mention",
+          ],
+        },
+        {
+          title: "Silver",
+          price: 250,
+          description: "Great brand placement for community partners.",
+          points: ["Booth space", "Event program recognition"],
+        },
+        {
+          title: "Bronze",
+          price: 100,
+          description: "Supporter spotlight at the venue.",
+          points: [
+            "Name listed on sponsor wall",
+            "Thank-you mention during announcements",
+          ],
+        },
+      ],
       maxSpadesTeams: 8,
     } satisfies EventFormValues,
   });
@@ -385,110 +432,377 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
-        <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-[1.1fr_0.9fr]">
-          <FormischField of={form} path={["bbqDonationType"]}>
-            {(field) => (
-              <div className="grid gap-2">
-                <FieldLabel>BBQ donation option</FieldLabel>
-                <Select
-                  value={field.input ?? "one-time"}
-                  onValueChange={(value) => field.onChange(value)}
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">BBQ donation options</h2>
+              <p className="text-sm text-muted-foreground">
+                Add menu items and their pricing for the BBQ donation section.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                insert(form, {
+                  path: ["bbqDonationItems"],
+                  initialInput: {
+                    name: "New BBQ item",
+                    price: 0,
+                  },
+                })
+              }
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add item
+            </Button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+            <FormischField of={form} path={["bbqDonationType"]}>
+              {(field) => (
+                <div className="grid gap-2">
+                  <FieldLabel>BBQ donation option</FieldLabel>
+                  <Select
+                    value={field.input ?? "one-time"}
+                    onValueChange={(value) => field.onChange(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose a donation option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="one-time">
+                        One-time donation
+                      </SelectItem>
+                      <SelectItem value="monthly">Monthly donation</SelectItem>
+                      <SelectItem value="sponsor">Sponsor package</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {field.errors?.[0] ? (
+                    <p className="text-xs text-destructive">
+                      {field.errors[0]}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </FormischField>
+
+            <FormischField of={form} path={["bbqDonationAmount"]}>
+              {(field) => (
+                <Field
+                  data-invalid={field.errors !== null}
+                  className="grid gap-2"
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a donation option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="one-time">One-time donation</SelectItem>
-                    <SelectItem value="monthly">Monthly donation</SelectItem>
-                    <SelectItem value="sponsor">Sponsor package</SelectItem>
-                  </SelectContent>
-                </Select>
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
+                  <FieldLabel htmlFor="bbqDonationAmount">
+                    BBQ donation amount
+                  </FieldLabel>
+                  <Input
+                    id="bbqDonationAmount"
+                    type="number"
+                    min={0}
+                    step={1}
+                    {...field.props}
+                    value={field.input ?? 0}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value || 0))
+                    }
+                  />
+                  {field.errors?.[0] ? (
+                    <p className="text-xs text-destructive">
+                      {field.errors[0]}
+                    </p>
+                  ) : null}
+                </Field>
+              )}
+            </FormischField>
+          </div>
+
+          <FieldArray of={form} path={["bbqDonationItems"]}>
+            {(array) => (
+              <div className="space-y-3">
+                {array.items.map((itemId, index) => (
+                  <div
+                    key={itemId}
+                    className="grid gap-3 rounded-xl border bg-background p-4 md:grid-cols-[1.2fr_0.8fr_auto]"
+                  >
+                    <FormischField
+                      of={form}
+                      path={["bbqDonationItems", index, "name"]}
+                    >
+                      {(field) => (
+                        <Field
+                          data-invalid={field.errors !== null}
+                          className="grid gap-2"
+                        >
+                          <FieldLabel htmlFor={`bbq-item-name-${index}`}>
+                            Item name
+                          </FieldLabel>
+                          <Input
+                            id={`bbq-item-name-${index}`}
+                            placeholder="e.g. Pulled pork sandwich"
+                            {...field.props}
+                            value={field.input ?? ""}
+                            onChange={(event) =>
+                              field.onChange(event.target.value)
+                            }
+                          />
+                          {field.errors?.[0] ? (
+                            <p className="text-xs text-destructive">
+                              {field.errors[0]}
+                            </p>
+                          ) : null}
+                        </Field>
+                      )}
+                    </FormischField>
+
+                    <FormischField
+                      of={form}
+                      path={["bbqDonationItems", index, "price"]}
+                    >
+                      {(field) => (
+                        <Field
+                          data-invalid={field.errors !== null}
+                          className="grid gap-2"
+                        >
+                          <FieldLabel htmlFor={`bbq-item-price-${index}`}>
+                            Price
+                          </FieldLabel>
+                          <Input
+                            id={`bbq-item-price-${index}`}
+                            type="number"
+                            min={0}
+                            step={1}
+                            {...field.props}
+                            value={field.input ?? 0}
+                            onChange={(event) =>
+                              field.onChange(Number(event.target.value || 0))
+                            }
+                          />
+                          {field.errors?.[0] ? (
+                            <p className="text-xs text-destructive">
+                              {field.errors[0]}
+                            </p>
+                          ) : null}
+                        </Field>
+                      )}
+                    </FormischField>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="self-end"
+                      onClick={() =>
+                        remove(form, {
+                          path: ["bbqDonationItems"],
+                          at: index,
+                        })
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
-          </FormischField>
-
-          <FormischField of={form} path={["bbqDonationAmount"]}>
-            {(field) => (
-              <Field
-                data-invalid={field.errors !== null}
-                className="grid gap-2"
-              >
-                <FieldLabel htmlFor="bbqDonationAmount">
-                  BBQ donation amount
-                </FieldLabel>
-                <Input
-                  id="bbqDonationAmount"
-                  type="number"
-                  min={0}
-                  step={1}
-                  {...field.props}
-                  value={field.input ?? 0}
-                  onChange={(event) =>
-                    field.onChange(Number(event.target.value || 0))
-                  }
-                />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </Field>
-            )}
-          </FormischField>
+          </FieldArray>
         </div>
 
-        <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-[0.9fr_1.1fr]">
-          <FormischField of={form} path={["sponsorTierPrice"]}>
-            {(field) => (
-              <Field
-                data-invalid={field.errors !== null}
-                className="grid gap-2"
-              >
-                <FieldLabel htmlFor="sponsorTierPrice">
-                  Sponsor tier price
-                </FieldLabel>
-                <Input
-                  id="sponsorTierPrice"
-                  type="number"
-                  min={0}
-                  step={1}
-                  {...field.props}
-                  value={field.input ?? 0}
-                  onChange={(event) =>
-                    field.onChange(Number(event.target.value || 0))
-                  }
-                />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </Field>
-            )}
-          </FormischField>
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
+          <div>
+            <h2 className="text-lg font-semibold">Sponsor tiers</h2>
+            <p className="text-sm text-muted-foreground">
+              Configure the three available sponsor packages and their benefits.
+            </p>
+          </div>
 
-          <FormischField of={form} path={["sponsorKeyPoints"]}>
-            {(field) => (
-              <Field
-                data-invalid={field.errors !== null}
-                className="grid gap-2"
+          <div className="grid gap-4">
+            {Array.from({ length: 3 }).map((_, tierIndex) => (
+              <div
+                key={tierIndex}
+                className="grid gap-4 rounded-xl border bg-background p-5"
               >
-                <FieldLabel htmlFor="sponsorKeyPoints">
-                  Sponsor key points
-                </FieldLabel>
-                <Textarea
-                  id="sponsorKeyPoints"
-                  rows={4}
-                  placeholder="Logo placement, social media mention, VIP perks, booth access"
-                  {...field.props}
-                  value={field.input ?? ""}
-                  onChange={(event) => field.onChange(event.target.value)}
-                />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
-              </Field>
-            )}
-          </FormischField>
+                <div className="grid gap-4 md:grid-cols-[1fr_0.6fr]">
+                  <FormischField
+                    of={form}
+                    path={["sponsorTiers", tierIndex, "title"]}
+                  >
+                    {(field) => (
+                      <Field
+                        data-invalid={field.errors !== null}
+                        className="grid gap-2"
+                      >
+                        <FieldLabel htmlFor={`sponsor-tier-title-${tierIndex}`}>
+                          Tier title
+                        </FieldLabel>
+                        <Input
+                          id={`sponsor-tier-title-${tierIndex}`}
+                          placeholder="Gold"
+                          {...field.props}
+                          value={field.input ?? ""}
+                          onChange={(event) =>
+                            field.onChange(event.target.value)
+                          }
+                        />
+                        {field.errors?.[0] ? (
+                          <p className="text-xs text-destructive">
+                            {field.errors[0]}
+                          </p>
+                        ) : null}
+                      </Field>
+                    )}
+                  </FormischField>
+
+                  <FormischField
+                    of={form}
+                    path={["sponsorTiers", tierIndex, "price"]}
+                  >
+                    {(field) => (
+                      <Field
+                        data-invalid={field.errors !== null}
+                        className="grid gap-2"
+                      >
+                        <FieldLabel htmlFor={`sponsor-tier-price-${tierIndex}`}>
+                          Tier price
+                        </FieldLabel>
+                        <Input
+                          id={`sponsor-tier-price-${tierIndex}`}
+                          type="number"
+                          min={0}
+                          step={1}
+                          {...field.props}
+                          value={field.input ?? 0}
+                          onChange={(event) =>
+                            field.onChange(Number(event.target.value || 0))
+                          }
+                        />
+                        {field.errors?.[0] ? (
+                          <p className="text-xs text-destructive">
+                            {field.errors[0]}
+                          </p>
+                        ) : null}
+                      </Field>
+                    )}
+                  </FormischField>
+                </div>
+
+                <FormischField
+                  of={form}
+                  path={["sponsorTiers", tierIndex, "description"]}
+                >
+                  {(field) => (
+                    <Field
+                      data-invalid={field.errors !== null}
+                      className="grid gap-2"
+                    >
+                      <FieldLabel
+                        htmlFor={`sponsor-tier-description-${tierIndex}`}
+                      >
+                        Description
+                      </FieldLabel>
+                      <Textarea
+                        id={`sponsor-tier-description-${tierIndex}`}
+                        rows={3}
+                        placeholder="Describe what the tier includes."
+                        {...field.props}
+                        value={field.input ?? ""}
+                        onChange={(event) => field.onChange(event.target.value)}
+                      />
+                      {field.errors?.[0] ? (
+                        <p className="text-xs text-destructive">
+                          {field.errors[0]}
+                        </p>
+                      ) : null}
+                    </Field>
+                  )}
+                </FormischField>
+
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <FieldLabel>Key points</FieldLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        insert(form, {
+                          path: ["sponsorTiers", tierIndex, "points"],
+                          initialInput: "",
+                        })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add point
+                    </Button>
+                  </div>
+
+                  <FieldArray
+                    of={form}
+                    path={["sponsorTiers", tierIndex, "points"]}
+                  >
+                    {(array) => (
+                      <div className="space-y-3">
+                        {array.items.map((itemId, pointIndex) => (
+                          <div
+                            key={itemId}
+                            className="flex items-start gap-3 rounded-lg border bg-background p-3"
+                          >
+                            <FormischField
+                              of={form}
+                              path={[
+                                "sponsorTiers",
+                                tierIndex,
+                                "points",
+                                pointIndex,
+                              ]}
+                            >
+                              {(field) => (
+                                <Field className="grid flex-1 gap-2">
+                                  <FieldLabel
+                                    htmlFor={`sponsor-point-${tierIndex}-${pointIndex}`}
+                                  >
+                                    Point
+                                  </FieldLabel>
+                                  <Input
+                                    id={`sponsor-point-${tierIndex}-${pointIndex}`}
+                                    placeholder="Add a key point"
+                                    {...field.props}
+                                    value={field.input ?? ""}
+                                    onChange={(event) =>
+                                      field.onChange(event.target.value)
+                                    }
+                                  />
+                                  {field.errors?.[0] ? (
+                                    <p className="text-xs text-destructive">
+                                      {field.errors[0]}
+                                    </p>
+                                  ) : null}
+                                </Field>
+                              )}
+                            </FormischField>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                remove(form, {
+                                  path: ["sponsorTiers", tierIndex, "points"],
+                                  at: pointIndex,
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </FieldArray>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
@@ -513,8 +827,8 @@ export default function EventDashboardForm() {
                   }
                 />
                 <FieldDescription>
-                  Set the maximum number of team allowed to perticipate in
-                  Spades game.
+                  Set the maximum number of teams allowed to participate in
+                  the Spades game.
                 </FieldDescription>
                 {field.errors && (
                   <FieldError
