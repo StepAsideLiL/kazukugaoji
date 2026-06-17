@@ -310,9 +310,14 @@ export default function EventDashboardForm() {
                     field.onChange(Number(event.target.value || 0))
                   }
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
+                <FieldDescription>
+                  Set maximum allowed number of guests.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
               </Field>
             )}
           </FormischField>
@@ -337,9 +342,12 @@ export default function EventDashboardForm() {
                     field.onChange(Number(event.target.value || 0))
                   }
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
+                <FieldDescription>Set price for T-shirt.</FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
               </Field>
             )}
           </FormischField>
@@ -366,9 +374,12 @@ export default function EventDashboardForm() {
                     field.onChange(Number(event.target.value || 0))
                   }
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
+                <FieldDescription>Set price for VIP access.</FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
               </Field>
             )}
           </FormischField>
@@ -480,7 +491,7 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
-        <div className="grid gap-6 rounded-xl border bg-background/70 p-5 md:grid-cols-2">
+        <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <FormischField of={form} path={["maxSpadesTeams"]}>
             {(field) => (
               <Field
@@ -501,20 +512,18 @@ export default function EventDashboardForm() {
                     field.onChange(Number(event.target.value || 0))
                   }
                 />
-                {field.errors?.[0] ? (
-                  <p className="text-xs text-destructive">{field.errors[0]}</p>
-                ) : null}
+                <FieldDescription>
+                  Set the maximum number of team allowed to perticipate in
+                  Spades game.
+                </FieldDescription>
+                {field.errors && (
+                  <FieldError
+                    errors={field.errors.map((message) => ({ message }))}
+                  />
+                )}
               </Field>
             )}
           </FormischField>
-
-          <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Ready to publish</p>
-            <p className="mt-1">
-              This screen now captures the requested event configuration fields
-              with shadcn UI, Formisch, and Valibot validation.
-            </p>
-          </div>
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t pt-4">
