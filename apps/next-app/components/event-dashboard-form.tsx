@@ -3,19 +3,18 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Field,
   FieldDescription,
   FieldError,
-  // FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import {
@@ -71,15 +70,15 @@ const eventRegistrationSchema = v.object({
   ),
   tshirtPrice: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
   vipAccessPrice: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
-  bbqDonationType: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1, "Please select a donation type")
-  ),
-  bbqDonationAmount: v.pipe(
-    v.number(),
-    v.minValue(0, "Amount cannot be negative")
-  ),
+  // bbqDonationType: v.pipe(
+  //   v.string(),
+  //   v.trim(),
+  //   v.minLength(1, "Please select a donation type")
+  // ),
+  // bbqDonationAmount: v.pipe(
+  //   v.number(),
+  //   v.minValue(0, "Amount cannot be negative")
+  // ),
   bbqDonationItems: v.array(bbqDonationItemSchema),
   sponsorTiers: v.array(sponsorTierSchema),
   maxSpadesTeams: v.pipe(
@@ -102,8 +101,8 @@ export default function EventDashboardForm() {
       maxGuestsAllowed: 150,
       tshirtPrice: 25,
       vipAccessPrice: 75,
-      bbqDonationType: "one-time",
-      bbqDonationAmount: 50,
+      // bbqDonationType: "one-time",
+      // bbqDonationAmount: 50,
       bbqDonationItems: [
         { name: "Chicken skewers", price: 12 },
         { name: "Veggie skewers", price: 10 },
@@ -157,7 +156,6 @@ export default function EventDashboardForm() {
         of={form}
         onSubmit={(output) => {
           console.info("Event settings saved", output);
-          alert("Event settings saved successfully.");
         }}
         className="grid gap-6 rounded-2xl border bg-card p-6 shadow-sm"
       >
@@ -459,7 +457,7 @@ export default function EventDashboardForm() {
             </Button>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+          {/* <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
             <FormischField of={form} path={["bbqDonationType"]}>
               {(field) => (
                 <div className="grid gap-2">
@@ -516,7 +514,7 @@ export default function EventDashboardForm() {
                 </Field>
               )}
             </FormischField>
-          </div>
+          </div> */}
 
           <FieldArray of={form} path={["bbqDonationItems"]}>
             {(array) => (
@@ -590,7 +588,7 @@ export default function EventDashboardForm() {
 
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="destructive"
                       size="icon"
                       className="self-end"
                       onClick={() =>
@@ -600,7 +598,7 @@ export default function EventDashboardForm() {
                         })
                       }
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 ))}
@@ -783,7 +781,7 @@ export default function EventDashboardForm() {
                             </FormischField>
                             <Button
                               type="button"
-                              variant="ghost"
+                              variant="destructive"
                               size="icon"
                               onClick={() =>
                                 remove(form, {
@@ -792,7 +790,7 @@ export default function EventDashboardForm() {
                                 })
                               }
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
                         ))}
@@ -827,8 +825,8 @@ export default function EventDashboardForm() {
                   }
                 />
                 <FieldDescription>
-                  Set the maximum number of teams allowed to participate in
-                  the Spades game.
+                  Set the maximum number of teams allowed to participate in the
+                  Spades game.
                 </FieldDescription>
                 {field.errors && (
                   <FieldError
