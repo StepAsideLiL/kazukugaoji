@@ -3,13 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Field,
@@ -25,6 +18,7 @@ import {
   remove,
   useForm,
 } from "@formisch/react";
+import type { SubmitHandler } from "@formisch/react";
 import { Plus, Trash2 } from "lucide-react";
 import * as v from "valibot";
 
@@ -70,15 +64,6 @@ const eventRegistrationSchema = v.object({
   ),
   tshirtPrice: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
   vipAccessPrice: v.pipe(v.number(), v.minValue(0, "Price cannot be negative")),
-  // bbqDonationType: v.pipe(
-  //   v.string(),
-  //   v.trim(),
-  //   v.minLength(1, "Please select a donation type")
-  // ),
-  // bbqDonationAmount: v.pipe(
-  //   v.number(),
-  //   v.minValue(0, "Amount cannot be negative")
-  // ),
   bbqDonationItems: v.array(bbqDonationItemSchema),
   sponsorTiers: v.array(sponsorTierSchema),
   maxSpadesTeams: v.pipe(
@@ -101,8 +86,6 @@ export default function EventDashboardForm() {
       maxGuestsAllowed: 150,
       tshirtPrice: 25,
       vipAccessPrice: 75,
-      // bbqDonationType: "one-time",
-      // bbqDonationAmount: 50,
       bbqDonationItems: [
         { name: "Chicken skewers", price: 12 },
         { name: "Veggie skewers", price: 10 },
@@ -137,6 +120,12 @@ export default function EventDashboardForm() {
     } satisfies EventFormValues,
   });
 
+  const handleSubmit: SubmitHandler<typeof eventRegistrationSchema> = (
+    value
+  ) => {
+    console.log(value);
+  };
+
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-6 md:p-10">
       <header className="space-y-2 rounded-2xl border bg-card p-6 shadow-sm">
@@ -154,12 +143,11 @@ export default function EventDashboardForm() {
 
       <Form
         of={form}
-        onSubmit={(output) => {
-          console.info("Event settings saved", output);
-        }}
+        onSubmit={handleSubmit}
         className="grid gap-6 rounded-2xl border bg-card p-6 shadow-sm"
       >
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Form ID/Slug */}
           <FormischField of={form} path={["idSlug"]}>
             {(field) => (
               <Field
@@ -186,6 +174,7 @@ export default function EventDashboardForm() {
             )}
           </FormischField>
 
+          {/* Form Title */}
           <FormischField of={form} path={["title"]}>
             {(field) => (
               <Field
@@ -212,6 +201,7 @@ export default function EventDashboardForm() {
             )}
           </FormischField>
 
+          {/* Form Subtitle */}
           <FormischField of={form} path={["subtitle"]}>
             {(field) => (
               <Field
@@ -238,6 +228,7 @@ export default function EventDashboardForm() {
             )}
           </FormischField>
 
+          {/* Form Description */}
           <FormischField of={form} path={["description"]}>
             {(field) => (
               <Field
@@ -266,6 +257,7 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
+        {/* Required fields of Form */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <div>
             <h2 className="text-lg font-semibold">Required fields</h2>
@@ -334,6 +326,7 @@ export default function EventDashboardForm() {
           </div>
         </div>
 
+        {/* Max guests of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <FormischField of={form} path={["maxGuestsAllowed"]}>
             {(field) => (
@@ -368,6 +361,7 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
+        {/* T-shirt price of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <FormischField of={form} path={["tshirtPrice"]}>
             {(field) => (
@@ -398,6 +392,7 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
+        {/* VIP access price of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <FormischField of={form} path={["vipAccessPrice"]}>
             {(field) => (
@@ -430,6 +425,7 @@ export default function EventDashboardForm() {
           </FormischField>
         </div>
 
+        {/* BBQ donation options of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -607,6 +603,7 @@ export default function EventDashboardForm() {
           </FieldArray>
         </div>
 
+        {/* Sponsor tiers of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <div>
             <h2 className="text-lg font-semibold">Sponsor tiers</h2>
@@ -803,6 +800,7 @@ export default function EventDashboardForm() {
           </div>
         </div>
 
+        {/* Max spades teams of event */}
         <div className="grid gap-6 rounded-xl border bg-background/70 p-5">
           <FormischField of={form} path={["maxSpadesTeams"]}>
             {(field) => (
